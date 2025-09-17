@@ -310,62 +310,62 @@ void show_sort(char *str_stock)
     free(word);
     free(cleaned);
 }
-void show_Par_longueur( char *stock)
+void show_Par_longueur(char *stock)
 {
     char *cleaned = remove_flags(stock);
-    
     int g = count_word(cleaned);
 
     char **word = malloc(g * sizeof(char *));
-    int i = 0;
-    int j  = 0 ;
-    int c_word = 0;
-    int val_count = g;
+    int i = 0, j = 0, c_word = 0;
     word[c_word] = malloc(200 * sizeof(char));
 
     while (cleaned[i])
     {
         if (cleaned[i] != ' ')
         {
-            word[c_word][j] = cleaned[i];
-            j++;   
-        }else
+            word[c_word][j++] = cleaned[i];
+        }
+        else
         {
             word[c_word][j] = '\0';
             c_word++;
             word[c_word] = malloc(200 * sizeof(char));
+            j = 0;
         }
-        i++; 
+        i++;
     }
     word[c_word][j] = '\0';
 
-    i = 0;
+    int size = g;
+
     char *swap = malloc(200 * sizeof(char));
-    while (g > 0)
+    
+    for (int pass = 0; pass < size - 1; pass++)
     {
-        j = 0;
-        while (j < g - 1)
+        for (int k = 0; k < size - pass - 1; k++)
         {
-            if (str_len(word[j]) > str_len(word[j + 1]))
+            if (str_len(word[k]) > str_len(word[k + 1]))
             {
-                str_copy(swap , word[j]);
-                str_copy(word[j], word[j + 1]);
-                str_copy(word[j + 1], swap);
-                   
+                str_copy(swap, word[k]);
+                str_copy(word[k], word[k + 1]);
+                str_copy(word[k + 1], swap);
             }
-            j++;
         }
-        g--;
     }
-    
-    
-    for (int i = 0; i < val_count;  i++)
+    free(swap);
+
+    printf("----------------------------\n");
+    for (int i = 0; i < g; i++)
     {
         printf("%s\n", word[i]);
-        free(word[i]);
+        free(word[i]);  
     }
-    free(cleaned);
+    printf("-----------------------------\n"); 
+    free(word);  
+    free(cleaned); 
 }
+
+
 void show_statistiques_globales(char *str_stock)
 {
     char *cleaned = remove_flags(str_stock);    
