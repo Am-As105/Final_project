@@ -168,7 +168,7 @@ char  **stock(char *str_stock)
     {
         printf("------------------\n\n");
         printf("mot =  \"%s\"", word[i]);
-        printf("\nLongueur du mot  = %d  \n" , str_len(word[i]) );
+        printf("\nLongueur du mot  = %d  \n" , str_len(word[i]));
         printf("position = %d \n", i +1); 
         cou = 0; 
         cou = 0; 
@@ -236,7 +236,7 @@ void show_sort(char *str_stock)
 
  void show_sort_Par_frequence(char *str_stock) 
 {
-    char *cleaned = remove_flags(str_stock);    
+    char *cleaned = remove_flags(str_stock);  
 
     int g = count_word(cleaned);   
     char **word = malloc(g * sizeof(char *));         
@@ -288,7 +288,7 @@ void show_sort(char *str_stock)
         }
         j++;
         }
-        if (found == 0) 
+        if (found == 0)
         {
              strcpy(C_farz[farz_count].str, word[i]);
              C_farz[farz_count].count = 1;
@@ -299,15 +299,71 @@ void show_sort(char *str_stock)
     i = 0;
     while (i < g)
     {
-        printf("%s\n", C_farz[i].str);
+        printf(" mot = %s\n", C_farz[i].str);
+        printf(" Nombre de repetitions %d \n", C_farz[i].count);
         i++;
     }
-    
     for (int i = 0; i < g; i++)
     {
         free(word[i]);
     }
     free(word);
+    free(cleaned);
+}
+void show_Par_longueur( char *stock)
+{
+    char *cleaned = remove_flags(stock);
+    
+    int g = count_word(cleaned);
+
+    char **word = malloc(g * sizeof(char *));
+    int i = 0;
+    int j  = 0 ;
+    int c_word = 0;
+    int val_count = g;
+    word[c_word] = malloc(200 * sizeof(char));
+
+    while (cleaned[i])
+    {
+        if (cleaned[i] != ' ')
+        {
+            word[c_word][j] = cleaned[i];
+            j++;   
+        }else
+        {
+            word[c_word][j] = '\0';
+            c_word++;
+            word[c_word] = malloc(200 * sizeof(char));
+        }
+        i++; 
+    }
+    word[c_word][j] = '\0';
+
+    i = 0;
+    char *swap = malloc(200 * sizeof(char));
+    while (g > 0)
+    {
+        j = 0;
+        while (j < g - 1)
+        {
+            if (str_len(word[j]) > str_len(word[j + 1]))
+            {
+                str_copy(swap , word[j]);
+                str_copy(word[j], word[j + 1]);
+                str_copy(word[j + 1], swap);
+                   
+            }
+            j++;
+        }
+        g--;
+    }
+    
+    
+    for (int i = 0; i < val_count;  i++)
+    {
+        printf("%s\n", word[i]);
+        free(word[i]);
+    }
     free(cleaned);
 }
 void show_statistiques_globales(char *str_stock)
@@ -341,17 +397,28 @@ void show_statistiques_globales(char *str_stock)
     
     i = 0;
     int total = 0;
+    int  n_valid = 0;
     while (i < g)
     {
-        total = total + str_len(word[i]);
+       if (g > 0)
+       {
+         total = total + str_len(word[i]);
+         n_valid++;
+       }
+       
         i++;
     }
-    
-    printf("\n--------------------\n");
+    printf(" le nombre total de mots  = %d \n", n_valid); 
+
+    printf("\n\n--------------------\n");
     printf(" le nombre total de mots  = %d \n", g);
-    printf("nombre de mots uniques = \n");
-    printf("longueur moyenne %d = \n"  ,total / g );
-    printf("mot le plus long =  ")  ;     
+    if (n_valid > 0)
+    {
+        float moyenne = total / n_valid;
+        printf("La longueur moyenne des mots = %.2f\n", moyenne);
+    }
+
+    printf("mot le plus long =  \n\n");   
     
     for (int i = 0; i < g; i++)
     {
@@ -359,8 +426,7 @@ void show_statistiques_globales(char *str_stock)
     }
     free(word);
     free(cleaned);
-
-
+    
 }
 
 int main()
@@ -426,7 +492,7 @@ int main()
         else if (choisir == 5)
         {
             int choisir;
-            printf("\n 1 : Par ordre alphabetique \n 2: Par freequence (decroissante)\n 3:Par longueur (croissante)\n\n");
+            printf("\n 1 : Par ordre alphabetique :\n 2: Par freequence (decroissante):\n 3:Par longueur (croissante):\n :");
             scanf("%d", &choisir); 
             if (choisir == 1)
             {
@@ -435,17 +501,25 @@ int main()
             else if(choisir == 2)
             {
                 show_sort_Par_frequence(str);  
+            }else if (choisir == 3 )
+            {
+                show_Par_longueur(str);
             }
+            
+            
             
         }
         else if (choisir == 6)
         {
-            
+            show_statistiques_globales(str);   
+        }
+        else if (choisir == 7)
+        {
             
         }
         
         
-        
+    
         if (choisir == 8)
             return 0;   
         
