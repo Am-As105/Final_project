@@ -132,9 +132,10 @@ char  **sort_ordre_alphab(char **word,  int size)
 char  **stock(char *str_stock)
 {
        
-      char *cleaned = remove_flags(str_stock);   
+    char *cleaned = remove_flags(str_stock);   
 
-    int g = count_word(cleaned);   
+    int g = count_word(cleaned);  
+    
     char **word = malloc(g * sizeof(char *));         
 
     int i = 0;
@@ -239,6 +240,12 @@ void show_sort(char *str_stock)
     char *cleaned = remove_flags(str_stock);  
 
     int g = count_word(cleaned);   
+    if (g <= 0)
+    {
+        printf("Aucun mot trouve dans le texte.\n");
+        free(cleaned);
+        return;
+    }
     char **word = malloc(g * sizeof(char *));         
 
     int i = 0;
@@ -339,7 +346,7 @@ void show_Par_longueur(char *stock)
     int size = g;
 
     char *swap = malloc(200 * sizeof(char));
-    
+
     for (int pass = 0; pass < size - 1; pass++)
     {
         for (int k = 0; k < size - pass - 1; k++)
@@ -365,68 +372,115 @@ void show_Par_longueur(char *stock)
     free(cleaned); 
 }
 
-
 void show_statistiques_globales(char *str_stock)
 {
     char *cleaned = remove_flags(str_stock);    
     int g = count_word(cleaned);   
-    char **word = malloc(g * sizeof(char *));         
+    if (g <= 0)
+    {
+        printf("Aucun mot trouvé dans le texte.\n");
+        free(cleaned);
+        return;
+    }
 
-    int i = 0;
-    int j = 0;
-    int c_word = 0;
+    char **word = malloc(g * sizeof(char *));         
+    int i = 0, j = 0, c_word = 0;
     word[c_word] = malloc(200 * sizeof(char));         
 
     while (cleaned[i])
     {
         if (cleaned[i] != ' ')
         {
-            word[c_word][j] = cleaned[i];
-            j++;
+            word[c_word][j++] = cleaned[i];
         }
         else
         {
             word[c_word][j] = '\0';
             c_word++;
-            j = 0;
             word[c_word] = malloc(200 * sizeof(char));      
+            j = 0;
         }
         i++;
     }
     word[c_word][j] = '\0';
-    
-    i = 0;
+
     int total = 0;
-    int  n_valid = 0;
-    while (i < g)
-    {
-       if (g > 0)
-       {
-         total = total + str_len(word[i]);
-         n_valid++;
-       }
-       
-        i++;
-    }
-    printf(" le nombre total de mots  = %d \n", n_valid); 
+    int max_len = 0;
+    char mot_long[200] = "";
 
-    printf("\n\n--------------------\n");
-    printf(" le nombre total de mots  = %d \n", g);
-    if (n_valid > 0)
+    for (i = 0; i <= c_word; i++)
     {
-        float moyenne = total / n_valid;
-        printf("La longueur moyenne des mots = %.2f\n", moyenne);
+        int len = str_len(word[i]);
+        total += len;
+
+        if (len > max_len)
+        {
+            max_len = len;
+            strcpy(mot_long, word[i]);
+        }
     }
 
-    printf("mot le plus long =  \n\n");   
-    
-    for (int i = 0; i < g; i++)
+    float moyenne = (float)total / (c_word + 1);
+
+    printf("\n-------------------\n");
+    printf("Nombre total de mots       : %d\n", c_word + 1);
+    printf("Longueur moyenne des mots  : %.2f\n", moyenne);
+    printf("Mot le plus long           : %s (%d lettres)\n", mot_long, max_len);
+
+    struct count_unique
     {
+        char str[200];
+        int count;
+    };
+
+    struct count_unique *unique = malloc((c_word + 1) * sizeof(struct count_unique));
+    int nb_uniques = 0;
+
+    for (i = 0; i <= c_word; i++)
+    {
+        int found = 0;
+        for (j = 0; j < nb_uniques; j++)
+        {
+            if (strcmp(unique[j].str, word[i]) == 0)
+            {
+                unique[j].count++;
+                found = 1;
+                break;
+            }
+        }
+
+        if (!found)
+        {
+            strcpy(unique[nb_uniques].str, word[i]);
+            unique[nb_uniques].count = 1;
+            nb_uniques++;
+        }
+    }
+
+    // printf("\n------ Mots Uniques (Apparaissent 1 fois) ------\n");
+    int found_any = 0;
+    for (i = 0; i < nb_uniques; i++)
+    {
+        if (unique[i].count == 1)
+        {
+            printf("- %s\n", unique[i].str);
+            found_any = 1;
+        }
+    }
+
+    if (!found_any)
+    {
+        printf("Aucun mot unique trouvé.\n");
+    }
+
+    printf("========================================\n");
+
+    for (i = 0; i <= c_word; i++)
         free(word[i]);
-    }
+
     free(word);
+    free(unique);
     free(cleaned);
-    
 }
 
 int main()
@@ -504,9 +558,7 @@ int main()
             }else if (choisir == 3 )
             {
                 show_Par_longueur(str);
-            }
-            
-            
+            } 
             
         }
         else if (choisir == 6)
@@ -518,8 +570,6 @@ int main()
             
         }
         
-        
-    
         if (choisir == 8)
             return 0;   
         
